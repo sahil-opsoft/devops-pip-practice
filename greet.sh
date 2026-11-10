@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-echo "Hello from Day 3"
+echo "Hi from the feature branch"
 echo "Today is $(date +%F)"
