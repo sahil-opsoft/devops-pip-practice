@@ -28,7 +28,7 @@ pipeline {
         stage('Test') {
             steps {
                 dir('hello-maven') {
-                    sh 'mvn -B tset'
+                    sh 'mvn -B test'
                 }
             }
             post {
