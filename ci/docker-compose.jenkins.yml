@@ -1,0 +1,28 @@
+name: ci-jenkins
+
+services:
+  jenkins:
+    build: ./jenkins
+    image: pip/jenkins:lts-jdk21-docker-trivy
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      JAVA_OPTS: "-Xmx768m"
+    group_add:
+      - "${DOCKER_GID:?set DOCKER_GID in .env}"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: [ci]
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+    external: true
+
+networks:
+  ci:
+    external: true
+    name: ci
