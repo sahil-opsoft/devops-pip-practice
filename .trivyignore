@@ -1,0 +1,8 @@
+# Trivy ignore list: every entry needs a reason, an owner, a review date and an expiry.
+#
+# CVE-2025-49146 (pgjdbc): insecure authentication fallback that only applies
+# when the JDBC URL sets channelBinding=require.
+# Not applicable: hello-maven's DB_URL never sets channelBinding.
+# Vendors disagree: GHSA 8.2 (HIGH), NVD 5.9 (MEDIUM).
+# Owner: sahil-opsoft. Reviewed: 2026-11-18. Remove once pgjdbc >= 42.7.7.
+CVE-2025-49146 exp:2026-12-31
