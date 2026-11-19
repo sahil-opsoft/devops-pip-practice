@@ -11,19 +11,34 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Tiny web service: "/" returns a greeting, "/db" stores and counts visits in PostgreSQL. */
+/** Tiny web service: greeting, PostgreSQL visit counter, health endpoint and a failure switch. */
 public final class App {
 
-    static final String GREETING = "Hello from the Jenkins pipeline!";
+    static final String DEFAULT_GREETING = "Hello from the Jenkins pipeline!";
+    private static final AtomicBoolean HEALTHY = new AtomicBoolean(true);
 
     private App() {
     }
 
     public static void main(String[] args) throws IOException {
         int port = Integer.parseInt(env("PORT", "8080"));
+        String greeting = env("APP_GREETING", DEFAULT_GREETING);
+        String pod = env("HOSTNAME", "unknown");
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", ex -> reply(ex, 200, GREETING + "\n"));
+        server.createContext("/", ex -> reply(ex, 200, greeting + " (pod " + pod + ")\n"));
+        server.createContext("/healthz", ex -> {
+            if (HEALTHY.get()) {
+                reply(ex, 200, "ok\n");
+            } else {
+                reply(ex, 500, "unhealthy\n");
+            }
+        });
+        server.createContext("/fail", ex -> {
+            HEALTHY.set(false);
+            reply(ex, 200, "health check will now fail on pod " + pod + "\n");
+        });
         server.createContext("/db", ex -> {
             try {
                 reply(ex, 200, countVisit());
@@ -32,7 +47,8 @@ public final class App {
             }
         });
         server.start();
-        System.out.println("hello-maven listening on port " + port);
+        String source = System.getenv("APP_GREETING") == null ? "built-in default" : "APP_GREETING";
+        System.out.println("hello-maven v2 listening on port " + port + ", greeting from " + source);
     }
 
     private static String countVisit() throws SQLException {
