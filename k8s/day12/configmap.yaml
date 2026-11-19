@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hello-maven-config
+  namespace: pip-app
+data:
+  APP_GREETING: "Hello from Kubernetes - greeting set by a ConfigMap"
+  DB_URL: "jdbc:postgresql://postgres:5432/pip"
+  DB_USER: "pip"
+  POSTGRES_DB: "pip"
+  POSTGRES_USER: "pip"
